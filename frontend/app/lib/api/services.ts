@@ -1,4 +1,3 @@
-
 import { api, withFallback, toApiError } from "./client";
 
 import {
@@ -398,6 +397,18 @@ export const authApi = {
   logout: async () => {
     try {
       const response = await api.post("/auth/logout");
+      return response.data;
+    } catch (error) {
+      throw toApiError(error);
+    }
+  },
+
+  google: async (credential: string): Promise<AuthTokens> => {
+    try {
+      const response = await api.post<AuthTokens>("/auth/google", {
+        credential,
+      });
+
       return response.data;
     } catch (error) {
       throw toApiError(error);

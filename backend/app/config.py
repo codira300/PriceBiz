@@ -9,6 +9,15 @@ MONGODB_URL = os.getenv("MONGODB_URL")
 
 MONGODB_DATABASE_NAME = os.getenv("DATABASE_NAME")
 
+MONGODB_URL = os.getenv("MONGODB_URL")
+MONGODB_DATABASE_NAME = os.getenv("DATABASE_NAME")
+
+if not MONGODB_URL:
+    raise RuntimeError("MONGODB_URL environment variable is not set")
+
+if not MONGODB_DATABASE_NAME:
+    raise RuntimeError("DATABASE_NAME environment variable is not set")
+
 JWT_SECRET_KEY = os.getenv("PRICEBIZ_JWT_SECRET_KEY")
 
 if not JWT_SECRET_KEY:

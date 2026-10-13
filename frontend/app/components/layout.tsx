@@ -1,4 +1,4 @@
-import { Link, NavLink } from "react-router";
+import { Link, NavLink, useNavigate } from "react-router";
 import type { ReactNode } from "react";
 
 import { useAuth } from "../lib/auth";
@@ -20,7 +20,13 @@ export function Logo() {
 
 export function SiteLayout({ children }: { children: ReactNode }) {
   const { user, logout } = useAuth();
+  const navigate = useNavigate();
 
+  const handleLogout = async () => {
+    await logout();
+    navigate("/auth/login", { replace: true });
+  };
+  
   const nav =
     "text-sm font-medium hover:text-primary [&.active]:text-primary";
 
@@ -57,11 +63,11 @@ export function SiteLayout({ children }: { children: ReactNode }) {
                   {profileLabel}
                 </Link>
                 <button
-                  type="button"
-                  onClick={logout}
-                  className="text-sm text-muted-foreground hover:text-foreground"
+                    type="button"
+                    onClick={handleLogout}
+                    className="text-sm text-muted-foreground hover:text-foreground"
                 >
-                  Log out
+                    Log out
                 </button>
               </>
             ) : (

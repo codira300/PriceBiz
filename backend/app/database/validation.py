@@ -1,3 +1,5 @@
+
+import re
 from datetime import datetime
 from typing import Any, Optional
 
@@ -6,11 +8,48 @@ from pydantic import (
     ConfigDict,
     Field,
     field_validator,
+    model_validator,
 )
 
 
 class DatabaseModel(BaseModel):
     model_config = ConfigDict(extra="forbid")
+
+
+def validate_new_password(password: str) -> str:
+    """Validate the password policy for new registrations."""
+
+    if not 12 <= len(password) <= 128:
+        raise ValueError(
+            "Password must be between 12 and 128 characters."
+        )
+
+    if any(char.isspace() for char in password):
+        raise ValueError(
+            "Password must not contain whitespace."
+        )
+
+    if not re.search(r"[A-Z]", password):
+        raise ValueError(
+            "Password must contain at least one uppercase letter."
+        )
+
+    if not re.search(r"[a-z]", password):
+        raise ValueError(
+            "Password must contain at least one lowercase letter."
+        )
+
+    if not re.search(r"[0-9]", password):
+        raise ValueError(
+            "Password must contain at least one number."
+        )
+
+    if not re.search(r"[^A-Za-z0-9\s]", password):
+        raise ValueError(
+            "Password must contain at least one special character."
+        )
+
+    return password
 
 
 class UserData(DatabaseModel):
@@ -177,13 +216,10 @@ class RawObservationData(DatabaseModel):
             raise ValueError("Value cannot be empty")
 
         return value.upper()
-    
-    
+
+
 class CommentData(DatabaseModel):
-    content: str = Field(
-        min_length=1,
-        max_length=1000,
-    )
+    content: str = Field(min_length=1, max_length=1000)
 
     @field_validator("content")
     @classmethod
@@ -191,42 +227,23 @@ class CommentData(DatabaseModel):
         value = value.strip()
 
         if not value:
-            raise ValueError(
-                "Comment content cannot be empty"
-            )
+            raise ValueError("Comment content cannot be empty")
 
         return value
-    
-    
+
+
 class RegisterData(DatabaseModel):
-    name: str = Field(
-        min_length=1,
-        max_length=100,
-    )
+    name: str = Field(min_length=1, max_length=100)
+    email: str = Field(min_length=3, max_length=254)
+    password: str = Field(min_length=12, max_length=128)
 
-    email: str = Field(
-        min_length=3,
-        max_length=254,
-    )
-
-    password: str = Field(
-        min_length=8,
-        max_length=128,
-    )
-
-    @field_validator(
-        "name",
-        "email",
-        "password",
-    )
+    @field_validator("name", "email")
     @classmethod
     def validate_strings(cls, value):
         value = value.strip()
 
         if not value:
-            raise ValueError(
-                "Value cannot be empty"
-            )
+            raise ValueError("Value cannot be empty")
 
         return value
 
@@ -235,17 +252,15 @@ class RegisterData(DatabaseModel):
     def normalize_email(cls, value):
         return value.lower()
 
+    @field_validator("password")
+    @classmethod
+    def validate_password(cls, value):
+        return validate_new_password(value)
+
 
 class LoginData(DatabaseModel):
-    email: str = Field(
-        min_length=3,
-        max_length=254,
-    )
-
-    password: str = Field(
-        min_length=1,
-        max_length=128,
-    )
+    email: str = Field(min_length=3, max_length=254)
+    password: str = Field(min_length=1, max_length=128)
 
     @field_validator("email")
     @classmethod
@@ -253,17 +268,13 @@ class LoginData(DatabaseModel):
         value = value.strip()
 
         if not value:
-            raise ValueError(
-                "Email cannot be empty"
-            )
+            raise ValueError("Email cannot be empty")
 
         return value.lower()
 
 
 class GoogleAuthData(DatabaseModel):
-    credential: str = Field(
-        min_length=1,
-    )
+    credential: str = Field(min_length=1)
 
     @field_validator("credential")
     @classmethod
@@ -271,17 +282,13 @@ class GoogleAuthData(DatabaseModel):
         value = value.strip()
 
         if not value:
-            raise ValueError(
-                "Google credential cannot be empty"
-            )
+            raise ValueError("Google credential cannot be empty")
 
         return value
-    
+
+
 class RefreshTokenData(DatabaseModel):
-    refresh_token: str = Field(
-        min_length=1,
-        max_length=1000,
-    )
+    refresh_token: str = Field(min_length=1, max_length=1000)
 
     @field_validator("refresh_token")
     @classmethod
@@ -289,8 +296,6 @@ class RefreshTokenData(DatabaseModel):
         value = value.strip()
 
         if not value:
-            raise ValueError(
-                "Refresh token cannot be empty"
-            )
+            raise ValueError("Refresh token cannot be empty")
 
         return value

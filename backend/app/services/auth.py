@@ -3,6 +3,7 @@ import secrets
 import uuid
 
 from datetime import datetime, timedelta, timezone
+from app.database.validation import validate_new_password
 
 import jwt
 import logging
@@ -148,18 +149,23 @@ def decode_access_token(
     return payload
 
 
+
 async def register_user(
     name: str,
     email: str,
     password: str,
 ):
-    email = email.strip().lower()
+    validate_new_password(password)
 
-    existing_user = (
-        await users_db.get_user_by_email(
-            email
-        )
-    )
+    name = name.strip()
+    if not name or len(name) > 100:
+        raise ValueError("Name must contain 1 to 100 characters.")
+
+    email = email.strip().lower()
+    if not 3 <= len(email) <= 254:
+        raise ValueError("Email must contain 3 to 254 characters.")
+
+    existing_user = await users_db.get_user_by_email(email)
 
     if existing_user:
         AUTH_FAILURES_TOTAL.labels(
@@ -175,25 +181,22 @@ async def register_user(
             "A user with this email already exists"
         )
 
-    password_hash = hash_password(
-        password
-    )
+    password_hash = hash_password(password)
 
     user = await users_db.create_user(
         name=name,
         email=email,
         password_hash=password_hash,
     )
-    
+
     AUTH_EVENTS_TOTAL.labels(
         event="register_success",
     ).inc()
 
-    logger.info(
-        "Registration successful"
-    )
+    logger.info("Registration successful")
 
     return user
+
 
 
 async def login_user(
@@ -291,6 +294,24 @@ async def authenticate_google_user(
             google_requests.Request(),
             GOOGLE_CLIENT_ID,
         )
+        
+
+        google_id = google_user.get("sub")
+        email = google_user.get("email")
+        name = google_user.get("name")
+
+        if google_user.get("email_verified") is not True:
+            AUTH_FAILURES_TOTAL.inc()
+            raise GoogleAuthenticationError(
+                "Google has not verified this email address."
+            )
+
+        if not google_id or not email:
+            AUTH_FAILURES_TOTAL.inc()
+            raise GoogleAuthenticationError(
+                "Google did not provide the required account information."
+            )
+            
     except (
         ValueError,
         GoogleAuthError,

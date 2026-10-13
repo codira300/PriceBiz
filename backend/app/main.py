@@ -23,6 +23,8 @@ from app.routes.auth import router as auth_router
 from app.routes.health import router as health_router
 from app.routes.metrics import router as metrics_router
 from app.queue import task_queue
+from pathlib import Path
+from fastapi.staticfiles import StaticFiles
 
 
 import logging
@@ -41,11 +43,16 @@ configure_cors(app)
 
 app.middleware("http")(logging_middleware)
 
+BASE_DIR = Path(__file__).resolve().parent.parent
+UPLOADS_DIR = BASE_DIR / "uploads"
+UPLOADS_DIR.mkdir(parents=True, exist_ok=True)
+
 app.mount(
     "/uploads",
-    StaticFiles(directory="uploads"),
+    StaticFiles(directory=str(UPLOADS_DIR)),
     name="uploads",
 )
+
 
 app.include_router(auth_router)
 app.include_router(health_router)

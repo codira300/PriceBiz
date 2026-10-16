@@ -84,14 +84,19 @@ const mapLocation = (location: ApiLocationRecord): LocationNode => {
 export const productsApi = {
   search: (q: string) =>
     withFallback(
-      async () =>
-        unwrap<ProductSearchResult[]>(
+      async () => {
+        const data = unwrap<ProductSearchResult[]>(
           (
             await api.get("/search/products", {
               params: { q },
             })
           ).data,
-        ),
+        );
+
+        // The backend should return an array, but guard against unexpected
+        // shapes (e.g. an error object) so the UI never crashes on bad data.
+        return Array.isArray(data) ? data : [];
+      },
       () =>
         SAMPLE_PRODUCTS.filter((product) =>
           `${product.name} ${product.brand ?? ""} ${

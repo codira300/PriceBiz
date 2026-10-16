@@ -1,14 +1,8 @@
 
-import {
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-  type KeyboardEvent,
-} from "react";
+import { useEffect, useMemo, useRef, useState, type KeyboardEvent } from "react";
 import { ChevronDown, MapPin, X } from "lucide-react";
 
-import { useAsync } from "../hooks/use-async";
+import { useCachedAsync } from "../hooks/use-async";
 import { locationsApi } from "../lib/api/services";
 import type { LocationNode } from "../lib/types";
 import { inputCls } from "./layout";
@@ -27,6 +21,21 @@ type LocationSelectProps = {
   required?: boolean;
 };
 
+// Returns the given parts in order, dropping blanks and duplicates.
+function uniquePresent(parts: (string | null | undefined)[]): string[] {
+  const seen = new Set<string>();
+  const result: string[] = [];
+
+  for (const part of parts) {
+    if (part && !seen.has(part)) {
+      seen.add(part);
+      result.push(part);
+    }
+  }
+
+  return result;
+}
+
 type EnrichedLocation = {
   location: LocationNode;
   state: string;
@@ -40,9 +49,9 @@ export function LocationSelect({
   onChange,
   required = false,
 }: LocationSelectProps) {
-  const { data } = useAsync<LocationNode[]>(
+  const { data } = useCachedAsync<LocationNode[]>(
+    "locations:list",
     () => locationsApi.list(),
-    [],
   );
 
   const [query, setQuery] = useState("");
@@ -348,21 +357,11 @@ export function LocationSelect({
 
                   const primaryLabel = item.location.name;
 
-                  const secondaryLabel = [
-                    item.lga &&
-                    item.lga !== primaryLabel
-                      ? item.lga
-                      : "",
-                    item.state &&
-                    item.state !== primaryLabel
-                      ? item.state
-                      : "",
-                  ]
-                    .filter(Boolean)
-                    .filter(
-                      (part, i, parts) =>
-                        parts.indexOf(part) === i,
-                    )
+                  const secondaryLabel = uniquePresent([
+                    item.lga,
+                    item.state,
+                  ])
+                    .filter((part) => part !== primaryLabel)
                     .join(", ");
 
                   return (

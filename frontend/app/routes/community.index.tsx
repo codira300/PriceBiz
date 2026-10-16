@@ -1,33 +1,58 @@
 
 import { Link } from "react-router";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { MessageCircle } from "lucide-react";
 
 import { Page, btnCls, inputCls } from "../components/layout";
-import {
-  Empty,
-  ErrorState,
-  Loading,
-  SampleNotice,
-} from "../components/states";
-import { useAsync } from "../hooks/use-async";
+import { Empty, ErrorState, PageSkeleton, SampleNotice } from "../components/states";
+import { useCachedAsync } from "../hooks/use-async";
 import { communityApi } from "../lib/api/services";
 import { ApiError } from "../lib/api/client";
 import { useAuth } from "../lib/auth";
+import { usePageMeta } from "../lib/meta";
 import { timeAgo } from "../lib/format";
+import type { Post } from "../lib/types";
+
+// Splits a stored post into a display title and body. Posts may carry an
+// explicit title, or a single `content` string whose first paragraph is the
+// title and the remainder is the body.
+function splitPostContent(post: Post): { title: string; body: string } {
+  const content = post.content ?? post.body ?? "";
+  const separator = content.indexOf("\n\n");
+
+  return {
+    title:
+      post.title ||
+      (separator >= 0
+        ? content.slice(0, separator)
+        : content.split("\n")[0]) ||
+      "Discussion",
+    body:
+      post.body ||
+      (separator >= 0 ? content.slice(separator + 2) : content),
+  };
+}
 
 export default function Community() {
   const { user } = useAuth();
-  const feed = useAsync(() => communityApi.list(), []);
+  const feed = useCachedAsync(
+    "community:feed",
+    () => communityApi.list(),
+  );
 
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
   const [err, setErr] = useState<ApiError | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
-  useEffect(() => {
-    document.title = "Community — PriceBiz";
-  }, []);
+  usePageMeta({
+    title: "Community — PriceBiz",
+    description:
+      "Read and start discussions about prices, products and markets near you.",
+    ogTitle: "Community — PriceBiz",
+    ogDescription:
+      "Read and start discussions about prices, products and markets near you.",
+  });
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -92,7 +117,7 @@ export default function Community() {
       <div className="grid gap-8 lg:grid-cols-[2fr_1fr]">
         <div>
           {feed.loading ? (
-            <Loading />
+            <PageSkeleton />
           ) : feed.error ? (
             <ErrorState error={feed.error} onRetry={feed.retry} />
           ) : !feed.data?.length ? (
@@ -102,25 +127,14 @@ export default function Community() {
           ) : (
             <ul className="space-y-4">
               {feed.data.map((post) => {
-                const content = post.content ?? post.body ?? "";
-                const separator = content.indexOf("\n\n");
-                const displayedTitle =
-                  post.title ||
-                  (separator >= 0
-                    ? content.slice(0, separator)
-                    : content.split("\n")[0]) ||
-                  "Discussion";
-                const displayedBody =
-                  post.body ||
-                  (separator >= 0
-                    ? content.slice(separator + 2)
-                    : content);
+                const { title: displayedTitle, body: displayedBody } =
+                  splitPostContent(post);
 
                 return (
                   <li key={post._id}>
                     <Link
                       to={`/community/${post._id}`}
-                      className="block rounded-3xl border bg-card p-5 hover:border-primary"
+                      className="block rounded-3xl border bg-card p-5 card-hover"
                     >
                       <div className="flex flex-wrap gap-2 text-xs">
                         {post.product_name && (

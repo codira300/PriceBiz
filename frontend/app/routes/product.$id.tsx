@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import { Link, useParams, useSearchParams } from "react-router";
 import { ChevronRight, Info, PlusCircle } from "lucide-react";
 import {
@@ -11,15 +10,16 @@ import {
   YAxis,
 } from "recharts";
 
+import { usePageMeta } from "../lib/meta";
 import { LocationSelect } from "../components/location-select";
 import { btnCls } from "../components/layout";
 import {
   Empty,
   ErrorState,
-  Loading,
+  PageSkeleton,
   SampleNotice,
 } from "../components/states";
-import { useAsync } from "../hooks/use-async";
+import { useCachedAsync } from "../hooks/use-async";
 import { pricesApi, productsApi } from "../lib/api/services";
 import {
   formatDate,
@@ -47,6 +47,30 @@ function getLocationName(value: unknown): string | undefined {
   return undefined;
 }
 
+// Positions a seller type's median price within the overall observed range,
+// clamped to 0–100 so it can drive a progress bar. Falls back to the middle
+// (50%) when the range is unavailable or degenerate.
+function sellerBarPercent(
+  seller: Pick<SellerTypeStat, "median_price">,
+  summary: Pick<PriceSummary, "minimum" | "maximum">,
+): number {
+  const { minimum, maximum } = summary;
+
+  if (minimum === null || maximum === null) {
+    return 50;
+  }
+
+  const denominator = maximum * 1.2 - minimum * 0.8;
+  if (denominator <= 0) {
+    return 50;
+  }
+
+  return Math.min(
+    100,
+    Math.max(0, ((seller.median_price - minimum * 0.8) / denominator) * 100),
+  );
+}
+
 export default function ProductPage() {
   const { id } = useParams<{ id: string }>();
   const productId = id ?? "";
@@ -56,61 +80,29 @@ export default function ProductPage() {
   const variant = searchParams.get("variant") ?? undefined;
   const loc = searchParams.get("loc") ?? undefined;
 
-  useEffect(() => {
-    document.title = "Observed price range — PriceBiz";
+  usePageMeta({
+    title: "Observed price range — PriceBiz",
+    description:
+      "Typical observed price range, seller breakdown and price trend for this product.",
+    ogTitle: "Observed price range — PriceBiz",
+    ogDescription:
+      "Typical observed price range, seller breakdown and price trend for this product.",
+  });
 
-    const description =
-      "Typical observed price range, seller breakdown and price trend for this product.";
-
-    const updateMeta = (
-      selector: string,
-      attribute: string,
-      value: string,
-    ) => {
-      let element = document.querySelector<HTMLMetaElement>(selector);
-
-      if (!element) {
-        element = document.createElement("meta");
-        const match = selector.match(/["']([^"']+)["']/);
-
-        if (!match) {
-          return;
-        }
-
-        element.setAttribute(
-          selector.includes("property=") ? "property" : "name",
-          match[1],
-        );
-
-        document.head.appendChild(element);
-      }
-
-      element.setAttribute(attribute, value);
-    };
-
-    updateMeta('meta[name="description"]', "content", description);
-    updateMeta('meta[property="og:title"]', "content", document.title);
-    updateMeta(
-      'meta[property="og:description"]',
-      "content",
-      description,
-    );
-  }, []);
-
-  const product = useAsync(
+  const product = useCachedAsync(
+    `product:${productId}`,
     () => productsApi.get(productId),
-    [productId],
   );
 
-  const analysis = useAsync(
+  const analysis = useCachedAsync(
+    `price-analysis:${productId}:${variant ?? "any"}:${loc ?? "any"}`,
     () => pricesApi.analysis(productId, variant, loc),
-    [productId, variant, loc],
   );
 
-  const p = product.data;
+  const productData = product.data;
 
   const variantId =
-    variant ?? analysis.data?.variant_id ?? p?.variants?.[0]?._id;
+    variant ?? analysis.data?.variant_id ?? productData?.variants?.[0]?._id;
 
   function setSearch(patch: SearchState) {
     const next = new URLSearchParams(searchParams);
@@ -130,23 +122,23 @@ export default function ProductPage() {
     <div className="mx-auto max-w-6xl px-5 py-10">
       <SampleNotice show={product.sample || analysis.sample} />
 
-      <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+      <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between border-b border-border pb-6 mb-8">
         <div>
           <p className="text-xs font-semibold uppercase tracking-widest text-primary">
-            {p?.category ?? "Product"}
+            {productData?.category ?? "Product"}
           </p>
 
           <h1 className="mt-1 font-display text-4xl font-bold">
-            {p?.name ?? (product.loading ? "Loading…" : "Product")}
+            {productData?.name ?? (product.loading ? "Loading…" : "Product")}
           </h1>
 
-          {p?.brand && (
-            <p className="text-muted-foreground">{p.brand}</p>
+          {productData?.brand && (
+            <p className="text-muted-foreground">{productData.brand}</p>
           )}
 
-          {(p?.variants?.length ?? 0) > 0 && (
+          {(productData?.variants?.length ?? 0) > 0 && (
             <div className="mt-4 flex flex-wrap gap-2">
-              {p?.variants?.map((v) => (
+              {productData?.variants?.map((v) => (
                 <button
                   key={v._id}
                   type="button"
@@ -176,7 +168,7 @@ export default function ProductPage() {
 
       <div className="mt-8">
         {analysis.loading ? (
-          <Loading label="Analysing prices…" />
+          <PageSkeleton label="Analysing prices…" />
         ) : analysis.error ? (
           <ErrorState
             error={analysis.error}
@@ -184,7 +176,7 @@ export default function ProductPage() {
           />
         ) : analysis.data ? (
           <Analysis
-            a={analysis.data}
+            analysis={analysis.data}
             productId={productId}
             variantId={variantId}
           />
@@ -208,26 +200,26 @@ export default function ProductPage() {
 }
 
 function Analysis({
-  a,
+  analysis,
   productId,
   variantId,
 }: {
-  a: PriceAnalysis;
+  analysis: PriceAnalysis;
   productId: string;
   variantId?: string;
 }) {
-  const location = a.location;
+  const location = analysis.location;
   const used = getLocationName(location?.used) ?? "your area";
   const requested =
     getLocationName(location?.requested) ?? "the selected location";
   const path = location?.path?.length ? location.path : [used];
 
-  const sellerTypes: SellerTypeStat[] = Array.isArray(a.seller_types)
-    ? (a.seller_types as SellerTypeStat[])
+  const sellerTypes: SellerTypeStat[] = Array.isArray(analysis.seller_types)
+    ? (analysis.seller_types as SellerTypeStat[])
     : [];
 
-  const trend = a.trend ?? [];
-  const observations = a.observations ?? [];
+  const trend = analysis.trend ?? [];
+  const observations = analysis.observations ?? [];
 
   const contributeParams = new URLSearchParams({
     product: productId,
@@ -244,7 +236,7 @@ function Analysis({
     </Link>
   );
 
-  if (a.type === "NO_DATA" || !a.price_summary) {
+  if (analysis.type === "NO_DATA" || !analysis.price_summary) {
     return (
       <Empty title="Not enough price data yet">
         <p>
@@ -255,17 +247,17 @@ function Analysis({
     );
   }
 
-  const s = a.price_summary;
+  const summary = analysis.price_summary;
 
   const priceRange =
-    s.minimum !== null && s.maximum !== null
-      ? formatRange(s.minimum, s.maximum)
+    summary.minimum !== null && summary.maximum !== null
+      ? formatRange(summary.minimum, summary.maximum)
       : "Price range unavailable";
 
   const statistics = [
-    ["Total", s.observation_count],
-    ["Normal", s.normal_observation_count],
-    ["Outliers", s.outlier_count],
+    ["Total", summary.observation_count],
+    ["Normal", summary.normal_observation_count],
+    ["Outliers", summary.outlier_count],
   ] as const;
 
   return (
@@ -294,8 +286,8 @@ function Analysis({
         </p>
 
         <p className="mt-3 text-muted-foreground">
-          Based on {s.normal_observation_count} normal observations out of{" "}
-          {s.observation_count} total observations.
+          Based on {summary.normal_observation_count} normal observations out of{" "}
+          {summary.observation_count} total observations.
         </p>
 
         {location?.broadened && (
@@ -318,7 +310,7 @@ function Analysis({
         </div>
 
         <p className="mt-5 text-xs text-muted-foreground">
-          {s.currency} observed price range, not an official price. Prices
+          {summary.currency} observed price range, not an official price. Prices
           may vary by seller and location.
         </p>
 
@@ -337,23 +329,7 @@ function Analysis({
         {sellerTypes.length ? (
           <ul className="mt-4 space-y-3">
             {sellerTypes.map((seller) => {
-              const denominator =
-                s.minimum !== null && s.maximum !== null
-                  ? s.maximum * 1.2 - s.minimum * 0.8
-                  : 0;
-
-              const pct =
-                denominator > 0 && s.minimum !== null
-                  ? Math.min(
-                      100,
-                      Math.max(
-                        0,
-                        ((seller.median_price - s.minimum * 0.8) /
-                          denominator) *
-                          100,
-                      ),
-                    )
-                  : 50;
+              const pct = sellerBarPercent(seller, summary);
 
               return (
                 <li key={seller.seller_type}>

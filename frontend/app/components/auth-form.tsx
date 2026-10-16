@@ -55,6 +55,10 @@ export function AuthForm({
   const reg = mode === "register";
   const passwordValid = isPasswordValid(f.password);
 
+  const setField = (key: keyof typeof f, value: string) => {
+    setF((prev) => ({ ...prev, [key]: value }));
+  };
+
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setErr(null);
@@ -109,9 +113,7 @@ export function AuthForm({
               placeholder="Full name"
               autoComplete="name"
               value={f.name}
-              onChange={(e) =>
-                setF({ ...f, name: e.target.value })
-              }
+              onChange={(e) => setField("name", e.target.value)}
               className={inputCls}
             />
           )}
@@ -122,9 +124,7 @@ export function AuthForm({
             placeholder="Email"
             autoComplete="email"
             value={f.email}
-            onChange={(e) =>
-              setF({ ...f, email: e.target.value })
-            }
+            onChange={(e) => setField("email", e.target.value)}
             className={inputCls}
           />
 
@@ -134,9 +134,7 @@ export function AuthForm({
               placeholder="Phone (optional)"
               autoComplete="tel"
               value={f.phone}
-              onChange={(e) =>
-                setF({ ...f, phone: e.target.value })
-              }
+              onChange={(e) => setField("phone", e.target.value)}
               className={inputCls}
             />
           )}
@@ -162,7 +160,7 @@ export function AuthForm({
                 value={f.password}
                 maxLength={128}
                 onChange={(e) => {
-                  setF({ ...f, password: e.target.value });
+                  setField("password", e.target.value);
                   setPasswordTouched(true);
                 }}
                 className="min-w-0 flex-1 rounded-xl bg-transparent px-4 py-3 text-sm outline-none"

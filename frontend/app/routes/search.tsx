@@ -1,14 +1,15 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router";
-import { Search as SearchIcon } from "lucide-react";
+import { Search as SearchIcon, X as ClearIcon } from "lucide-react";
 import { Page, btnCls, inputCls } from "../components/layout";
 import {
   Empty,
   ErrorState,
-  Loading,
+  PageSkeleton,
   SampleNotice,
 } from "../components/states";
-import { useAsync } from "../hooks/use-async";
+import { usePageMeta } from "../lib/meta";
+import { useCachedAsync } from "../hooks/use-async";
 import { productsApi } from "../lib/api/services";
 
 type SearchVariant = {
@@ -33,77 +34,55 @@ type SearchProduct = {
   variant?: SearchVariant;
 };
 
+// Normalises a search hit, which may arrive nested under `product` or as a
+// flat record, into a consistent shape for the UI.
+function normalizeSearchResult(item: SearchProduct): SearchProduct {
+  const product = item.product ?? item;
+
+  const variants = item.product
+    ? item.variant
+      ? [item.variant]
+      : []
+    : Array.isArray(item.variants)
+      ? item.variants
+      : [];
+
+  return {
+    _id: product._id ?? item._id ?? "",
+    name: product.name ?? item.name ?? "Unnamed product",
+    brand: product.brand ?? item.brand ?? null,
+    category: product.category ?? item.category ?? null,
+    observation_count: item.observation_count ?? 0,
+    variants: variants.filter((variant) => Boolean(variant._id)),
+  };
+}
+
 export default function SearchPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const q = searchParams.get("q") ?? "";
   const [text, setText] = useState(q);
 
-  const res = useAsync(
+  const res = useCachedAsync(
+    `products:search:${q || "__empty__"}`,
     () =>
       q
         ? productsApi.search(q)
         : Promise.resolve({ data: [], sample: false }),
-    [q],
   );
 
-  const products = ((res.data ?? []) as unknown as SearchProduct[]).map(
-    (item) => {
-      const product = item.product ?? item;
+  const products = Array.isArray(res.data)
+    ? (res.data as SearchProduct[]).map(normalizeSearchResult)
+    : [];
 
-      const variants = item.product
-        ? item.variant
-          ? [item.variant]
-          : []
-        : Array.isArray(item.variants)
-          ? item.variants
-          : [];
-
-      return {
-        _id: product._id ?? item._id ?? "",
-        name: product.name ?? item.name ?? "Unnamed product",
-        brand: product.brand ?? item.brand ?? null,
-        category: product.category ?? item.category ?? null,
-        observation_count: item.observation_count ?? 0,
-        variants: variants.filter((variant) => Boolean(variant._id)),
-      };
-    },
-  );
-
-  useEffect(() => {
-    document.title = "Search products — PriceBiz";
-
-    const description =
-      "Find a product and see its observed price range near you.";
-
-    const metadata = [
-      { name: "description", content: description },
-      { property: "og:title", content: "Search products — PriceBiz" },
-      { property: "og:description", content: description },
-    ];
-
-    for (const { name, property, content } of metadata) {
-      const selector = name
-        ? `meta[name="${name}"]`
-        : `meta[property="${property}"]`;
-
-      let element = document.head.querySelector(selector);
-
-      if (!element) {
-        element = document.createElement("meta");
-
-        if (name) {
-          element.setAttribute("name", name);
-        } else if (property) {
-          element.setAttribute("property", property);
-        }
-
-        document.head.appendChild(element);
-      }
-
-      element.setAttribute("content", content);
-    }
-  }, []);
+  usePageMeta({
+    title: "Search products — PriceBiz",
+    description:
+      "Find a product and see its observed price range near you.",
+    ogTitle: "Search products — PriceBiz",
+    ogDescription:
+      "Find a product and see its observed price range near you.",
+  });
 
   useEffect(() => {
     setText(q);
@@ -133,8 +112,22 @@ export default function SearchPage() {
             value={text}
             onChange={(e) => setText(e.target.value)}
             placeholder="Search for a product..."
-            className={`${inputCls} pl-10`}
+            className={`${inputCls} pl-10 pr-10`}
           />
+
+          {text && (
+            <button
+              type="button"
+              onClick={() => {
+                setText("");
+                setSearchParams({});
+              }}
+              aria-label="Clear search"
+              className="z-10 absolute right-3 top-1/2 -translate-y-1/2 rounded p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground"
+            >
+              <ClearIcon className="h-4 w-4" />
+            </button>
+          )}
         </div>
 
         <button type="submit" className={btnCls}>
@@ -149,7 +142,7 @@ export default function SearchPage() {
           Try “sugar”, “nivea” or “rice”.
         </Empty>
       ) : res.loading ? (
-        <Loading label="Searching…" />
+        <PageSkeleton label="Searching…" />
       ) : res.error ? (
         <ErrorState error={res.error} onRetry={res.retry} />
       ) : !products.length ? (
@@ -167,7 +160,7 @@ export default function SearchPage() {
           {products.map((p) => (
             <li
               key={p._id || `${p.name}-${p.brand ?? ""}`}
-              className="rounded-3xl border bg-card p-5"
+              className="rounded-3xl border bg-card p-5 card-hover"
             >
               <div className="flex items-start justify-between gap-3">
                 <div>

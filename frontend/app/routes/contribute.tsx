@@ -1,15 +1,16 @@
 
 import { Link, useSearchParams } from "react-router";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { CheckCircle2 } from "lucide-react";
 
 import { LocationSelect } from "../components/location-select";
 import { Page, btnCls, inputCls } from "../components/layout";
 import { ErrorState } from "../components/states";
-import { useAsync } from "../hooks/use-async";
+import { useCachedAsync, asyncCache } from "../hooks/use-async";
 import { pricesApi, productsApi } from "../lib/api/services";
 import type { ApiError } from "../lib/api/client";
 import { useAuth } from "../lib/auth";
+import { usePageMeta } from "../lib/meta";
 import { SELLER_TYPES, sellerLabel } from "../lib/format";
 import type { SellerType } from "../lib/types";
 
@@ -20,7 +21,10 @@ export default function Contribute() {
   const searchVariant = searchParams.get("variant") ?? "";
 
   const { user } = useAuth();
-  const all = useAsync(() => productsApi.search(""), []);
+  const all = useCachedAsync(
+    "products:all",
+    () => productsApi.search(""),
+  );
 
   const [productId, setProductId] = useState(searchProduct);
   const [variantId, setVariantId] = useState(searchVariant);
@@ -37,9 +41,11 @@ export default function Contribute() {
 
   const product = all.data?.find((p) => p._id === productId);
 
-  useEffect(() => {
-    document.title = "Add a price — PriceBiz";
-  }, []);
+  usePageMeta({
+    title: "Add a price — PriceBiz",
+    description:
+      "Share what you paid for a product so your neighbours can negotiate fairly.",
+  });
 
   if (done) {
     return (
@@ -101,6 +107,13 @@ export default function Contribute() {
               location_id: loc,
               observed_at: new Date(date).toISOString(),
             });
+
+            // Invalidate caches so the new observation shows up immediately
+            asyncCache.invalidate(`product:${productId}`);
+            asyncCache.invalidate(
+              `price-analysis:${productId}:${variantId ?? "any"}:${loc ?? "any"}`,
+            );
+            asyncCache.invalidate("products:all");
 
             setDone(true);
           } catch (e2) {

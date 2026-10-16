@@ -122,14 +122,14 @@ export function Page({
   children: ReactNode;
 }) {
   return (
-    <div className="mx-auto max-w-6xl px-5 py-10">
+    <div className="mx-auto max-w-6xl px-5 py-10 animate-fade-in">
       {kicker && (
-        <p className="text-xs font-semibold uppercase tracking-widest text-primary">
+        <p className="text-xs font-semibold uppercase tracking-wider text-primary mb-1">
           {kicker}
         </p>
       )}
 
-      <h1 className="mt-1 font-display text-3xl font-bold md:text-4xl">
+      <h1 className="mt-0 font-display text-3xl font-bold tracking-tight md:text-4xl">
         {title}
       </h1>
 
@@ -139,7 +139,7 @@ export function Page({
 }
 
 export const inputCls =
-  "w-full rounded-xl border border-input bg-card px-4 py-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20";
+  "w-full rounded-xl border border-input bg-card px-4 py-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-colors";
 
 export const btnCls =
-  "inline-flex items-center justify-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground transition hover:brightness-110 disabled:opacity-60";
+  "inline-flex items-center justify-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground transition-all hover:brightness-110 active:scale-95 disabled:opacity-60 disabled:pointer-events-none btn-pressed";

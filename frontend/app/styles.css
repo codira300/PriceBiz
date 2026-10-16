@@ -1,9 +1,7 @@
 @import "tailwindcss";
-@source "../src";
 @import "tw-animate-css";
 
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
-
+@source "../src";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -91,6 +89,10 @@
   --sidebar-ring: oklch(0.56 0.17 40);
   --gradient-sun: radial-gradient(circle at 30% 30%, var(--primary-glow), var(--primary) 70%);
   --shadow-float: 0 30px 60px -25px color-mix(in oklab, var(--foreground) 25%, transparent);
+  --shadow-card: 0 1px 3px 0 color-mix(in oklab, var(--foreground) 8%, transparent),
+    0 1px 2px -1px color-mix(in oklab, var(--foreground) 4%, transparent);
+  --shadow-card-hover: 0 10px 25px -5px color-mix(in oklab, var(--foreground) 12%, transparent),
+    0 8px 10px -6px color-mix(in oklab, var(--foreground) 6%, transparent);
   font-family: 'Plus Jakarta Sans', sans-serif;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -170,4 +172,93 @@ p {
 small,
 .text-muted {
   color: var(--color-muted);
+}
+
+/* Page fade-in transition on route change */
+.page-enter {
+  opacity: 0;
+  transform: translateY(4px);
+}
+.page-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 180ms ease-out, transform 180ms ease-out;
+}
+.page-exit {
+  opacity: 1;
+}
+.page-exit-active {
+  opacity: 0;
+  transition: opacity 120ms ease-in;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeInUp 300ms ease-out forwards;
+}
+
+/* Interactive card: subtle lift + deeper shadow on hover */
+.card-hover {
+  transition: transform 200ms ease, box-shadow 200ms ease, border-color 200ms ease;
+}
+.card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-card-hover);
+  border-color: color-mix(in oklab, var(--primary) 60%, transparent);
+}
+
+/* Button pressed feedback */
+.btn-pressed:active {
+  transform: scale(0.985);
+}
+
+/* Section divider */
+.section-divider {
+  border: none;
+  border-top: 1px solid var(--color-border);
+  margin: 2rem 0;
+}
+
+/* Decorative background for empty states */
+.empty-decorative {
+  position: relative;
+  overflow: hidden;
+}
+.empty-decorative::before {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(
+    circle at 50% 50%,
+    color-mix(in oklab, var(--primary) 8%, transparent) 0%,
+    transparent 60%
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+.empty-decorative > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* Enhanced focus ring for accessibility */
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+button:focus-visible {
+  outline: 2px solid var(--color-ring);
+  outline-offset: 2px;
 }

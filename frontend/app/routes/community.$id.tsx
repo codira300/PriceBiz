@@ -2,8 +2,8 @@ import { Link, useParams } from "react-router";
 import { useState } from "react";
 
 import { btnCls, inputCls } from "../components/layout";
-import { ErrorState, Loading, SampleNotice } from "../components/states";
-import { useAsync } from "../hooks/use-async";
+import { ErrorState, PageSkeleton, SampleNotice } from "../components/states";
+import { useCachedAsync } from "../hooks/use-async";
 import { communityApi } from "../lib/api/services";
 import { ApiError } from "../lib/api/client";
 import { useAuth } from "../lib/auth";
@@ -29,7 +29,10 @@ export default function PostPage() {
 function PostContent({ id }: { id: string }) {
   const { user } = useAuth();
 
-  const post = useAsync(() => communityApi.get(id), [id]);
+  const post = useCachedAsync(
+    `community:post:${id}`,
+    () => communityApi.get(id),
+  );
 
   const [text, setText] = useState("");
   const [err, setErr] = useState<ApiError | null>(null);
@@ -74,7 +77,7 @@ function PostContent({ id }: { id: string }) {
       </Link>
 
       {post.loading ? (
-        <Loading />
+        <PageSkeleton />
       ) : post.error ? (
         <ErrorState error={post.error} onRetry={post.retry} />
       ) : p ? (

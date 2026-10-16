@@ -12,7 +12,15 @@ export default function Profile() {
     title: "Your profile — PriceBiz",
     description: "Your PriceBiz account.",
     ogTitle: "Your profile — PriceBiz",
+    ogType: "profile",
+    ogImage: "/hero-trader.jpg",
+    ogUrl: window.location.href,
+    ogSiteName: "PriceBiz",
     ogDescription: "Your PriceBiz account.",
+    twitterCard: "summary",
+    twitterTitle: "Your profile — PriceBiz",
+    twitterDescription: "Your PriceBiz account.",
+    twitterImage: "/hero-trader.jpg",
   });
 
   if (!ready) {

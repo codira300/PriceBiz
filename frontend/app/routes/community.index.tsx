@@ -50,8 +50,17 @@ export default function Community() {
     description:
       "Read and start discussions about prices, products and markets near you.",
     ogTitle: "Community — PriceBiz",
+    ogType: "website",
+    ogImage: "/hero-trader.jpg",
+    ogUrl: window.location.href,
+    ogSiteName: "PriceBiz",
     ogDescription:
       "Read and start discussions about prices, products and markets near you.",
+    twitterCard: "summary_large_image",
+    twitterTitle: "Community — PriceBiz",
+    twitterDescription:
+      "Read and start discussions about prices, products and markets near you.",
+    twitterImage: "/hero-trader.jpg",
   });
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {

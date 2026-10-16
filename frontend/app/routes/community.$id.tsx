@@ -4,6 +4,7 @@ import { useState } from "react";
 import { btnCls, inputCls } from "../components/layout";
 import { ErrorState, PageSkeleton, SampleNotice } from "../components/states";
 import { useCachedAsync } from "../hooks/use-async";
+import { usePageMeta } from "../lib/meta";
 import { communityApi } from "../lib/api/services";
 import { ApiError } from "../lib/api/client";
 import { useAuth } from "../lib/auth";
@@ -33,6 +34,29 @@ function PostContent({ id }: { id: string }) {
     `community:post:${id}`,
     () => communityApi.get(id),
   );
+
+  const p = post.data;
+
+  usePageMeta({
+    title: p?.title ? `${p.title} — PriceBiz` : "Post — PriceBiz",
+    description:
+      p?.body ??
+      "Read and join the discussion about prices on PriceBiz.",
+    ogTitle: p?.title ? `${p.title} — PriceBiz` : "Post — PriceBiz",
+    ogType: "article",
+    ogImage: "/hero-trader.jpg",
+    ogUrl: window.location.href,
+    ogSiteName: "PriceBiz",
+    ogDescription:
+      p?.body ??
+      "Read and join the discussion about prices on PriceBiz.",
+    twitterCard: "summary",
+    twitterTitle: p?.title ? `${p.title} — PriceBiz` : "Post — PriceBiz",
+    twitterDescription:
+      p?.body ??
+      "Read and join the discussion about prices on PriceBiz.",
+    twitterImage: "/hero-trader.jpg",
+  });
 
   const [text, setText] = useState("");
   const [err, setErr] = useState<ApiError | null>(null);

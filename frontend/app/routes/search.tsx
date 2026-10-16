@@ -80,8 +80,17 @@ export default function SearchPage() {
     description:
       "Find a product and see its observed price range near you.",
     ogTitle: "Search products — PriceBiz",
+    ogType: "website",
+    ogImage: "/hero-trader.jpg",
+    ogUrl: window.location.href,
+    ogSiteName: "PriceBiz",
     ogDescription:
       "Find a product and see its observed price range near you.",
+    twitterCard: "summary",
+    twitterTitle: "Search products — PriceBiz",
+    twitterDescription:
+      "Find a product and see its observed price range near you.",
+    twitterImage: "/hero-trader.jpg",
   });
 
   useEffect(() => {

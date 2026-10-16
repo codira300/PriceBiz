@@ -3,11 +3,30 @@ import { useNavigate } from "react-router";
 
 import { Page, btnCls, inputCls } from "../components/layout";
 import { ErrorState } from "../components/states";
+import { usePageMeta } from "../lib/meta";
 import { productsApi } from "../lib/api/services";
 import type { ApiError } from "../lib/api/client";
 
 export default function NewProduct() {
   const navigate = useNavigate();
+
+  usePageMeta({
+    title: "Add a product — PriceBiz",
+    description:
+      "Add a new product to PriceBiz so the community can track its price.",
+    ogTitle: "Add a product — PriceBiz",
+    ogType: "website",
+    ogImage: "/hero-trader.jpg",
+    ogUrl: window.location.href,
+    ogSiteName: "PriceBiz",
+    ogDescription:
+      "Add a new product to PriceBiz so the community can track its price.",
+    twitterCard: "summary",
+    twitterTitle: "Add a product — PriceBiz",
+    twitterDescription:
+      "Add a new product to PriceBiz so the community can track its price.",
+    twitterImage: "/hero-trader.jpg",
+  });
 
   const [f, setF] = useState({
     name: "",

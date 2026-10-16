@@ -35,6 +35,16 @@ export default function Home() {
     title: "PriceBiz — Know the price before you buy",
     description:
       "Search everyday products and see what people are paying in your area of Nigeria.",
+    ogTitle: "PriceBiz — Know the price before you buy",
+    ogType: "website",
+    ogImage: "/hero-trader.jpg",
+    ogUrl: window.location.href,
+    ogSiteName: "PriceBiz",
+    twitterCard: "summary_large_image",
+    twitterTitle: "PriceBiz — Know the price before you buy",
+    twitterDescription:
+      "Search everyday products and see what people are paying in your area of Nigeria.",
+    twitterImage: "/hero-trader.jpg",
   });
 
   return (

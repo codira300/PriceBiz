@@ -85,8 +85,17 @@ export default function ProductPage() {
     description:
       "Typical observed price range, seller breakdown and price trend for this product.",
     ogTitle: "Observed price range — PriceBiz",
+    ogType: "product",
+    ogImage: "/hero-trader.jpg",
+    ogUrl: window.location.href,
+    ogSiteName: "PriceBiz",
     ogDescription:
       "Typical observed price range, seller breakdown and price trend for this product.",
+    twitterCard: "summary_large_image",
+    twitterTitle: "Observed price range — PriceBiz",
+    twitterDescription:
+      "Typical observed price range, seller breakdown and price trend for this product.",
+    twitterImage: "/hero-trader.jpg",
   });
 
   const product = useCachedAsync(

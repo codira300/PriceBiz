@@ -45,6 +45,18 @@ export default function Contribute() {
     title: "Add a price — PriceBiz",
     description:
       "Share what you paid for a product so your neighbours can negotiate fairly.",
+    ogTitle: "Add a price — PriceBiz",
+    ogType: "website",
+    ogImage: "/hero-trader.jpg",
+    ogUrl: window.location.href,
+    ogSiteName: "PriceBiz",
+    ogDescription:
+      "Share what you paid for a product so your neighbours can negotiate fairly.",
+    twitterCard: "summary",
+    twitterTitle: "Add a price — PriceBiz",
+    twitterDescription:
+      "Share what you paid for a product so your neighbours can negotiate fairly.",
+    twitterImage: "/hero-trader.jpg",
   });
 
   if (done) {

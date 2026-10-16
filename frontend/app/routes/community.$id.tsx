@@ -62,7 +62,6 @@ function PostContent({ id }: { id: string }) {
   const [err, setErr] = useState<ApiError | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
-  const p = post.data;
   const trimmed = text.trim();
   const canSubmit = trimmed.length > 0 && !submitting;
 

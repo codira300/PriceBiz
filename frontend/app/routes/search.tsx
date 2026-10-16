@@ -190,7 +190,9 @@ export default function SearchPage() {
               </div>
 
               <div className="mt-4 flex flex-wrap gap-2">
-                {p.variants.map((v) => (
+                {(
+                  p.variants ?? []
+                ).map((v) => (
                   <Link
                     key={v._id}
                     to={`/product/${p._id}?variant=${encodeURIComponent(v._id)}`}

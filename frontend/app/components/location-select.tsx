@@ -1,9 +1,17 @@
 
-import { useEffect, useMemo, useRef, useState, type KeyboardEvent } from "react";
+import {
+  useEffect,
+  useId,
+  useMemo,
+  useRef,
+  useState,
+  type KeyboardEvent,
+} from "react";
 import { ChevronDown, MapPin, X } from "lucide-react";
 
 import { useCachedAsync } from "../hooks/use-async";
 import { locationsApi } from "../lib/api/services";
+import { cn } from "../lib/utils";
 import type { LocationNode } from "../lib/types";
 import { inputCls } from "./layout";
 
@@ -19,6 +27,9 @@ type LocationSelectProps = {
   value: string;
   onChange: (value: string) => void;
   required?: boolean;
+  label?: string;
+  inputId?: string;
+  inputClassName?: string;
 };
 
 // Returns the given parts in order, dropping blanks and duplicates.
@@ -48,7 +59,13 @@ export function LocationSelect({
   value,
   onChange,
   required = false,
+  label,
+  inputId,
+  inputClassName,
 }: LocationSelectProps) {
+  const generatedId = useId();
+  const resolvedInputId = inputId ?? generatedId;
+
   const { data } = useCachedAsync<LocationNode[]>(
     "locations:list",
     () => locationsApi.list(),
@@ -253,17 +270,27 @@ export function LocationSelect({
 
   return (
     <div ref={containerRef} className="relative w-full">
+      {label && (
+        <label
+          htmlFor={resolvedInputId}
+          className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground"
+        >
+          {label}
+        </label>
+      )}
+
       <div className="relative">
         <MapPin
           aria-hidden="true"
-          className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-primary"
+          className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-primary"
         />
 
         <input
           ref={inputRef}
+          id={resolvedInputId}
           type="text"
           role="combobox"
-          aria-label="Location"
+          aria-label={label ?? "Location"}
           aria-autocomplete="list"
           aria-expanded={open}
           aria-controls="location-suggestions"
@@ -298,7 +325,7 @@ export function LocationSelect({
           onInput={(event) => {
             event.currentTarget.setCustomValidity("");
           }}
-          className={`${inputCls} w-full pl-10 pr-10`}
+          className={cn(inputCls, "w-full pl-9 pr-10", inputClassName)}
         />
 
         {query || value ? (
@@ -312,7 +339,7 @@ export function LocationSelect({
               setOpen(true);
               inputRef.current?.focus();
             }}
-            className="absolute right-3 top-1/2 -translate-y-1/2 rounded p-1 text-muted-foreground hover:bg-muted"
+            className="absolute right-2 top-1/2 grid h-8 w-8 -translate-y-1/2 place-items-center rounded-[3px] text-muted-foreground transition-colors duration-150 ease-out hover:bg-muted hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
           >
             <X className="h-4 w-4" />
           </button>
@@ -329,7 +356,7 @@ export function LocationSelect({
           id="location-suggestions"
           role="listbox"
           aria-label="Location suggestions"
-          className="absolute z-50 mt-2 max-h-80 w-full overflow-y-auto rounded-xl border border-border bg-background py-2 shadow-lg"
+          className="absolute z-50 mt-1 max-h-80 w-full overflow-y-auto border border-border bg-background py-1"
         >
           {!data ? (
             <p className="px-4 py-3 text-sm text-muted-foreground">
@@ -381,7 +408,7 @@ export function LocationSelect({
                       }
                       onClick={() => selectLocation(item)}
                       className={[
-                        "flex w-full items-start gap-3 px-4 py-3 text-left",
+                        "flex min-h-11 w-full items-start gap-3 px-4 py-3 text-left transition-colors duration-150 ease-out focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-ring",
                         activeIndex === index
                           ? "bg-accent"
                           : "hover:bg-muted/60",

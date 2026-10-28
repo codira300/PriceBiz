@@ -1,5 +1,6 @@
 import { Link, useNavigate } from "react-router";
 import { useCallback, useState } from "react";
+import { Check, Circle } from "lucide-react";
 import { GoogleSignInButton } from "./google-sign-in-button";
 
 import { btnCls, inputCls } from "./layout";
@@ -91,55 +92,89 @@ export function AuthForm({
   }
 
   return (
-    <div className="mx-auto max-w-md px-5 py-16">
-      <div className="rounded-[2rem] border bg-card p-8 shadow-float">
-        <h1 className="font-display text-3xl font-bold">
+    <div className="mx-auto max-w-md px-5 py-12 md:py-16">
+      <div className="border border-border border-t-2 border-t-primary bg-card p-6 md:p-8">
+        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
+          {reg ? "Create account" : "Account"}
+        </p>
+
+        <h1 className="mt-2 text-balance font-display text-[clamp(1.75rem,4vw,2.25rem)] font-bold leading-[1.15] tracking-[-0.025em]">
           {reg ? "Join PriceBiz" : "Welcome back"}
         </h1>
 
-        <p className="mt-1 text-sm text-muted-foreground">
+        <p className="mt-2 text-sm leading-6 text-muted-foreground">
           {reg
             ? "Share prices and help your community."
             : "Log in to contribute and discuss."}
         </p>
 
         <form
-          className="mt-6 space-y-4"
+          className="mt-7 space-y-5"
           onSubmit={handleSubmit}
         >
           {reg && (
-            <input
-              required
-              placeholder="Full name"
-              autoComplete="name"
-              value={f.name}
-              onChange={(e) => setField("name", e.target.value)}
-              className={inputCls}
-            />
+            <div>
+              <label
+                htmlFor="auth-name"
+                className="mb-1.5 block text-sm font-medium"
+              >
+                Full name
+              </label>
+
+              <input
+                id="auth-name"
+                required
+                placeholder="e.g. Ada Okafor"
+                autoComplete="name"
+                value={f.name}
+                onChange={(e) => setField("name", e.target.value)}
+                className={inputCls}
+              />
+            </div>
           )}
 
-          <input
-            required
-            type="email"
-            placeholder="Email"
-            autoComplete="email"
-            value={f.email}
-            onChange={(e) => setField("email", e.target.value)}
-            className={inputCls}
-          />
+          <div>
+            <label
+              htmlFor="auth-email"
+              className="mb-1.5 block text-sm font-medium"
+            >
+              Email
+            </label>
+
+            <input
+              id="auth-email"
+              required
+              type="email"
+              placeholder="you@example.com"
+              autoComplete="email"
+              value={f.email}
+              onChange={(e) => setField("email", e.target.value)}
+              className={inputCls}
+            />
+          </div>
 
           {reg && (
-            <input
-              type="tel"
-              placeholder="Phone (optional)"
-              autoComplete="tel"
-              value={f.phone}
-              onChange={(e) => setField("phone", e.target.value)}
-              className={inputCls}
-            />
+            <div>
+              <label
+                htmlFor="auth-phone"
+                className="mb-1.5 block text-sm font-medium"
+              >
+                Phone <span className="text-muted-foreground">(optional)</span>
+              </label>
+
+              <input
+                id="auth-phone"
+                type="tel"
+                placeholder="+234 800 000 0000"
+                autoComplete="tel"
+                value={f.phone}
+                onChange={(e) => setField("phone", e.target.value)}
+                className={inputCls}
+              />
+            </div>
           )}
 
-          <div className="space-y-3">
+          <div className="space-y-2">
             <label
               htmlFor="password"
               className="block text-sm font-medium"
@@ -147,13 +182,13 @@ export function AuthForm({
               Password
             </label>
 
-            <div className="flex items-center rounded-xl border border-input bg-card focus-within:ring-2 focus-within:ring-primary/20">
+            <div className="flex items-center border border-input bg-card transition-colors duration-150 ease-out focus-within:border-primary">
               <input
                 id="password"
                 name="password"
                 required
                 type={passwordVisible ? "text" : "password"}
-                placeholder="Password"
+                placeholder="Enter your password"
                 autoComplete={
                   reg ? "new-password" : "current-password"
                 }
@@ -163,9 +198,14 @@ export function AuthForm({
                   setField("password", e.target.value);
                   setPasswordTouched(true);
                 }}
-                className="min-w-0 flex-1 rounded-xl bg-transparent px-4 py-3 text-sm outline-none"
+                className="min-h-11 min-w-0 flex-1 bg-transparent px-3 py-2.5 text-base outline-none"
                 aria-describedby={
                   reg ? "password-requirements" : undefined
+                }
+                aria-invalid={
+                  reg && passwordTouched && !passwordValid
+                    ? true
+                    : undefined
                 }
               />
 
@@ -178,7 +218,7 @@ export function AuthForm({
                   passwordVisible ? "Hide password" : "Show password"
                 }
                 aria-pressed={passwordVisible}
-                className="shrink-0 px-4 py-3 text-sm font-medium text-primary"
+                className="inline-flex min-h-11 shrink-0 items-center px-3 text-sm font-medium text-primary transition-colors duration-150 ease-out hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
               >
                 {passwordVisible ? "Hide" : "Show"}
               </button>
@@ -187,7 +227,7 @@ export function AuthForm({
             {reg && (
               <div
                 id="password-requirements"
-                className="space-y-2"
+                className="space-y-2 pt-1"
               >
                 <p className="text-sm font-medium">
                   Password requirements
@@ -200,16 +240,24 @@ export function AuthForm({
                     return (
                       <li
                         key={rule.id}
-                        className={`text-sm ${
+                        className={`flex items-start gap-2 text-sm leading-6 ${
                           passed
-                            ? "text-green-700"
+                            ? "text-success"
                             : "text-muted-foreground"
                         }`}
                       >
-                        <span aria-hidden="true">
-                          {passed ? "✓" : "○"}
-                        </span>{" "}
-                        {rule.label}
+                        {passed ? (
+                          <Check
+                            aria-hidden="true"
+                            className="mt-1 h-4 w-4 shrink-0"
+                          />
+                        ) : (
+                          <Circle
+                            aria-hidden="true"
+                            className="mt-1 h-4 w-4 shrink-0"
+                          />
+                        )}
+                        <span>{rule.label}</span>
                       </li>
                     );
                   })}
@@ -241,7 +289,7 @@ export function AuthForm({
           </button>
         </form>
 
-        <div className="mt-6 space-y-4">
+        <div className="mt-7 space-y-4">
         <div className="flex items-center gap-3">
           <div className="h-px flex-1 bg-border" />
           <span className="text-sm text-muted-foreground">
@@ -269,7 +317,7 @@ export function AuthForm({
               Already have an account?{" "}
               <Link
                 to="/auth/login"
-                className="text-primary"
+                className="text-primary underline underline-offset-4 transition-colors duration-150 ease-out hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
               >
                 Log in
               </Link>
@@ -279,7 +327,7 @@ export function AuthForm({
               New here?{" "}
               <Link
                 to="/auth/register"
-                className="text-primary"
+                className="text-primary underline underline-offset-4 transition-colors duration-150 ease-out hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
               >
                 Create an account
               </Link>

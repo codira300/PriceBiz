@@ -70,7 +70,7 @@ export default function NewProduct() {
   return (
     <Page title="Add a product" kicker="Products">
       <form
-        className="grid max-w-2xl gap-4 rounded-[2rem] border bg-card p-6 md:grid-cols-2 md:p-8"
+        className="grid max-w-2xl gap-5 border border-border bg-card p-6 md:grid-cols-2 md:p-8"
         onSubmit={async (event) => {
           event.preventDefault();
 

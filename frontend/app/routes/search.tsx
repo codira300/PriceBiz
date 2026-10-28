@@ -121,6 +121,7 @@ export default function SearchPage() {
             value={text}
             onChange={(e) => setText(e.target.value)}
             placeholder="Search for a product..."
+            aria-label="Search for a product"
             className={`${inputCls} pl-10 pr-10`}
           />
 
@@ -132,7 +133,7 @@ export default function SearchPage() {
                 setSearchParams({});
               }}
               aria-label="Clear search"
-              className="z-10 absolute right-3 top-1/2 -translate-y-1/2 rounded p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground"
+              className="absolute right-2 top-1/2 z-10 grid h-8 w-8 -translate-y-1/2 place-items-center rounded-[3px] text-muted-foreground transition-colors duration-150 ease-out hover:bg-muted hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
             >
               <ClearIcon className="h-4 w-4" />
             </button>
@@ -169,23 +170,23 @@ export default function SearchPage() {
           {products.map((p) => (
             <li
               key={p._id || `${p.name}-${p.brand ?? ""}`}
-              className="rounded-3xl border bg-card p-5 card-hover"
+              className="border border-border bg-card p-5 transition-colors duration-150 ease-out hover:border-primary/60"
             >
               <div className="flex items-start justify-between gap-3">
-                <div>
-                  <h3 className="font-display text-lg font-semibold">
+                <div className="min-w-0">
+                  <h3 className="text-balance font-display text-lg font-semibold leading-6">
                     {p.name}
                   </h3>
 
-                  <p className="text-sm text-muted-foreground">
+                  <p className="mt-1 text-sm leading-6 text-muted-foreground">
                     {[p.brand, p.category]
                       .filter(Boolean)
                       .join(" · ")}
                   </p>
                 </div>
 
-                <span className="rounded-full bg-accent px-2.5 py-1 text-xs text-accent-foreground">
-                  {p.observation_count} observations
+                <span className="shrink-0 border border-accent-foreground/15 bg-accent px-2 py-1 text-xs text-accent-foreground">
+                  {p.observation_count} obs.
                 </span>
               </div>
 
@@ -196,7 +197,7 @@ export default function SearchPage() {
                   <Link
                     key={v._id}
                     to={`/product/${p._id}?variant=${encodeURIComponent(v._id)}`}
-                    className="rounded-full border px-3 py-1.5 text-sm hover:border-primary hover:text-primary"
+                    className="inline-flex min-h-9 items-center rounded-[3px] border border-border px-3 text-sm transition-colors duration-150 ease-out hover:border-primary hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
                   >
                     {v.name} →
                   </Link>

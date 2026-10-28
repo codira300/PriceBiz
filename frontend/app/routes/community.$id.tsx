@@ -94,8 +94,11 @@ function PostContent({ id }: { id: string }) {
   }
 
   return (
-    <div className="mx-auto max-w-3xl px-5 py-10">
-      <Link to="/community" className="text-sm text-primary">
+    <div className="mx-auto max-w-3xl px-5 py-12 md:py-16">
+      <Link
+        to="/community"
+        className="inline-flex min-h-11 items-center rounded-[3px] text-sm text-primary transition-colors duration-150 ease-out hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+      >
         ← Community
       </Link>
 
@@ -107,14 +110,18 @@ function PostContent({ id }: { id: string }) {
         <>
           <SampleNotice show={post.sample} />
 
-          <article className="mt-4 rounded-[2rem] border bg-card p-8">
-            <h1 className="font-display text-3xl font-bold">{p.title}</h1>
+          <article className="mt-4 border border-border bg-card p-6 md:p-8">
+            <h1 className="text-balance font-display text-[clamp(1.75rem,4vw,2.5rem)] font-bold leading-[1.15] tracking-[-0.025em]">
+              {p.title}
+            </h1>
 
-            <p className="mt-1 text-xs text-muted-foreground">
-              {p.author_name} · {p.location_name} · {timeAgo(p.created_at)}
+            <p className="mt-2 text-sm text-muted-foreground">
+              {p.author_name || "PriceBiz member"} ·{" "}
+              {p.location_name || "Location not set"} ·{" "}
+              {timeAgo(p.created_at)}
             </p>
 
-            <p className="mt-5 whitespace-pre-line leading-relaxed">
+            <p className="mt-5 whitespace-pre-line text-base leading-7">
               {p.body}
             </p>
           </article>
@@ -125,32 +132,40 @@ function PostContent({ id }: { id: string }) {
             {(p.comments ?? []).map((comment) => (
               <li
                 key={comment._id}
-                className="rounded-2xl border bg-card p-4"
+                className="border border-border bg-card p-4"
               >
-                <p className="text-sm">{comment.body}</p>
+                <p className="text-sm leading-6">{comment.body}</p>
 
-                <p className="mt-1 text-xs text-muted-foreground">
-                  {comment.author_name} · {timeAgo(comment.created_at)}
+                <p className="mt-2 text-xs text-muted-foreground">
+                  {comment.author_name || "PriceBiz member"} ·{" "}
+                  {timeAgo(comment.created_at)}
                 </p>
               </li>
             ))}
 
             {!p.comments?.length && (
-              <li className="text-sm text-muted-foreground">
-                No replies yet.
+              <li className="border border-dashed border-border px-4 py-6 text-sm text-muted-foreground">
+                No replies yet. Add the first one.
               </li>
             )}
           </ul>
 
           {user ? (
-            <form className="mt-4 space-y-3" onSubmit={handleSubmit}>
+            <form className="mt-5 space-y-3" onSubmit={handleSubmit}>
+              <label
+                htmlFor="post-reply"
+                className="block text-sm font-medium"
+              >
+                Add a reply
+              </label>
+
               <textarea
+                id="post-reply"
                 required
                 rows={3}
                 value={text}
                 onChange={(event) => setText(event.target.value)}
-                placeholder="Add a reply"
-                aria-label="Add a reply"
+                placeholder="What did you notice?"
                 className={inputCls}
               />
 
@@ -169,8 +184,11 @@ function PostContent({ id }: { id: string }) {
               </button>
             </form>
           ) : (
-            <p className="mt-4 text-sm text-muted-foreground">
-              <Link to="/auth/login" className="text-primary underline">
+            <p className="mt-5 text-sm text-muted-foreground">
+              <Link
+                to="/auth/login"
+                className="text-primary underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+              >
                 Log in
               </Link>{" "}
               to reply.

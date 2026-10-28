@@ -29,17 +29,22 @@ function NotFoundComponent() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
-        <h1 className="text-7xl font-bold text-foreground">404</h1>
-        <h2 className="mt-4 text-xl font-semibold text-foreground">
+        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
+          Error
+        </p>
+        <h1 className="mt-2 font-display text-[clamp(4rem,12vw,7rem)] font-bold leading-none tracking-[-0.04em] text-primary">
+          404
+        </h1>
+        <h2 className="mt-4 font-display text-2xl font-bold text-foreground">
           Page not found
         </h2>
-        <p className="mt-2 text-sm text-muted-foreground">
+        <p className="mt-2 text-sm leading-6 text-muted-foreground">
           The page you're looking for doesn't exist or has been moved.
         </p>
         <div className="mt-6">
           <Link
             to="/"
-            className="inline-flex rounded-full bg-primary px-4 py-2 text-sm font-medium text-primary-foreground"
+            className="inline-flex min-h-11 items-center rounded-[3px] bg-primary px-5 text-sm font-medium text-primary-foreground transition-colors duration-150 ease-out hover:bg-primary-glow hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
           >
             Go home
           </Link>
@@ -68,10 +73,13 @@ function ErrorComponent() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
-        <h1 className="text-xl font-semibold text-foreground">
+        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
+          Error
+        </p>
+        <h1 className="mt-2 font-display text-2xl font-bold text-foreground">
           This page didn't load
         </h1>
-        <p className="mt-2 text-sm text-muted-foreground">
+        <p className="mt-2 text-sm leading-6 text-muted-foreground">
           Something went wrong on our end. You can try refreshing or head back
           home.
         </p>
@@ -82,14 +90,15 @@ function ErrorComponent() {
         )}
         <div className="mt-6 flex justify-center gap-2">
           <button
+            type="button"
             onClick={() => navigate(0)}
-            className="rounded-full bg-primary px-4 py-2 text-sm font-medium text-primary-foreground"
+            className="inline-flex min-h-11 items-center rounded-[3px] bg-primary px-5 text-sm font-medium text-primary-foreground transition-colors duration-150 ease-out hover:bg-primary-glow hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
           >
             Try again
           </button>
           <Link
             to="/"
-            className="rounded-full border px-4 py-2 text-sm font-medium"
+            className="inline-flex min-h-11 items-center rounded-[3px] border border-border px-5 text-sm font-medium transition-colors duration-150 ease-out hover:border-primary hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
           >
             Go home
           </Link>

@@ -88,6 +88,10 @@
   --sidebar-border: oklch(0.9 0.012 70);
   --sidebar-ring: oklch(0.56 0.17 40);
   --gradient-sun: radial-gradient(circle at 30% 30%, var(--primary-glow), var(--primary) 70%);
+  --motion-fast: 150ms;
+  --motion-base: 200ms;
+  --motion-enter: 240ms;
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
   --shadow-float: 0 30px 60px -25px color-mix(in oklab, var(--foreground) 25%, transparent);
   --shadow-card: 0 1px 3px 0 color-mix(in oklab, var(--foreground) 8%, transparent),
     0 1px 2px -1px color-mix(in oklab, var(--foreground) 4%, transparent);
@@ -110,6 +114,9 @@
 @layer base {
   * {
     border-color: var(--color-border);
+  }
+  html {
+    scroll-padding-top: 5rem;
   }
   body {
     background-color: var(--color-background);
@@ -204,7 +211,7 @@ small,
 }
 
 .animate-fade-in {
-  animation: fadeInUp 300ms ease-out forwards;
+  animation: fadeInUp var(--motion-enter) var(--ease-standard) forwards;
 }
 
 /* Interactive card: subtle lift + deeper shadow on hover */
@@ -255,10 +262,33 @@ small,
 }
 
 /* Enhanced focus ring for accessibility */
+a:focus-visible,
 input:focus-visible,
 select:focus-visible,
 textarea:focus-visible,
 button:focus-visible {
   outline: 2px solid var(--color-ring);
   outline-offset: 2px;
+}
+
+/* Respect the user's motion preference for every transition and animation. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .animate-fade-in,
+  .card-hover {
+    animation: none !important;
+    transform: none !important;
+  }
+
+  .card-hover:hover {
+    box-shadow: none;
+  }
 }

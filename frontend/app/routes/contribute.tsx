@@ -62,13 +62,13 @@ export default function Contribute() {
   if (done) {
     return (
       <Page title="Price observation submitted." kicker="Thank you">
-        <CheckCircle2 className="h-10 w-10 text-success" />
+        <CheckCircle2 aria-hidden="true" className="h-10 w-10 text-success" />
 
-        <p className="mt-3 text-muted-foreground">
+        <p className="mt-3 max-w-md text-base leading-7 text-muted-foreground">
           Your observation helps others understand typical prices.
         </p>
 
-        <div className="mt-6 flex gap-3">
+        <div className="mt-6 flex flex-wrap gap-3">
           <Link
             to={`/product/${encodeURIComponent(productId)}?variant=${encodeURIComponent(variantId)}`}
             className={btnCls}
@@ -77,11 +77,12 @@ export default function Contribute() {
           </Link>
 
           <button
+            type="button"
             onClick={() => {
               setDone(false);
               setPrice("");
             }}
-            className="rounded-full border px-6 py-3 text-sm"
+            className="inline-flex min-h-11 items-center rounded-[3px] border border-border px-5 text-sm transition-colors duration-150 ease-out hover:border-primary hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
           >
             Add another
           </button>
@@ -93,9 +94,12 @@ export default function Contribute() {
   return (
     <Page title="Add a price you saw or paid" kicker="Contribute">
       {!user && (
-        <p className="mb-6 rounded-xl bg-accent px-4 py-3 text-sm text-accent-foreground">
+        <p className="mb-6 border-l-2 border-primary bg-accent px-4 py-3 text-sm leading-6 text-accent-foreground">
           You'll need to{" "}
-          <Link to="/auth/login" className="underline">
+          <Link
+            to="/auth/login"
+            className="underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+          >
             log in
           </Link>{" "}
           to submit an observation.
@@ -103,7 +107,7 @@ export default function Contribute() {
       )}
 
       <form
-        className="grid max-w-2xl gap-4 rounded-[2rem] border bg-card p-6 md:grid-cols-2 md:p-8"
+        className="grid max-w-2xl gap-5 border border-border bg-card p-6 md:grid-cols-2 md:p-8"
         onSubmit={async (e) => {
           e.preventDefault();
           setBusy(true);
@@ -234,16 +238,14 @@ export default function Contribute() {
           />
         </label>
 
-        <div className="text-sm font-medium">
-          Location
-
-          <div className="mt-1">
-            <LocationSelect
-              required
-              value={loc}
-              onChange={setLoc}
-            />
-          </div>
+        <div>
+          <LocationSelect
+            required
+            label="Location"
+            inputId="contribute-location"
+            value={loc}
+            onChange={setLoc}
+          />
         </div>
 
         <label className="text-sm font-medium">
@@ -266,7 +268,7 @@ export default function Contribute() {
         )}
 
         <div className="md:col-span-2">
-          <button disabled={busy} className={btnCls}>
+          <button type="submit" disabled={busy} className={btnCls}>
             {busy ? "Submitting…" : "Submit observation"}
           </button>
         </div>

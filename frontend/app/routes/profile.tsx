@@ -55,12 +55,9 @@ export default function Profile() {
   ];
 
   return (
-    <Page
-      title={account.name?.trim() || "Your profile"}
-      kicker="Account"
-    >
-      <div className="max-w-xl overflow-hidden rounded-3xl border bg-card">
-        <div className="border-b p-6">
+    <Page title="Your profile" kicker="Account">
+      <div className="max-w-xl overflow-hidden border border-border bg-card">
+        <div className="border-b border-border p-6">
           <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-2xl font-bold text-primary">
             {(account.name?.trim() || account.email?.trim() || "U")
               .charAt(0)
@@ -76,7 +73,7 @@ export default function Profile() {
           </p>
         </div>
 
-        <dl className="divide-y">
+        <dl className="divide-y divide-border">
           {fields.map((field) => (
             <div
               key={field.label}
@@ -92,7 +89,7 @@ export default function Profile() {
           ))}
         </dl>
 
-        <div className="flex flex-wrap gap-3 border-t p-6">
+        <div className="flex flex-wrap gap-3 border-t border-border p-6">
           <Link to="/contribute" className={btnCls}>
             Add a price
           </Link>
@@ -100,7 +97,7 @@ export default function Profile() {
           <button
             type="button"
             onClick={logout}
-            className="rounded-full border px-6 py-3 text-sm"
+            className="inline-flex min-h-11 items-center rounded-[3px] border border-border px-5 text-sm transition-colors duration-150 ease-out hover:border-primary hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
           >
             Log out
           </button>

@@ -143,27 +143,27 @@ export default function Community() {
                   <li key={post._id}>
                     <Link
                       to={`/community/${post._id}`}
-                      className="block rounded-3xl border bg-card p-5 card-hover"
+                      className="block border border-border bg-card p-5 transition-colors duration-150 ease-out hover:border-primary/60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
                     >
                       <div className="flex flex-wrap gap-2 text-xs">
                         {post.product_name && (
-                          <span className="rounded-full bg-accent px-2 py-0.5 text-accent-foreground">
+                          <span className="border border-accent-foreground/15 bg-accent px-2 py-0.5 text-accent-foreground">
                             {post.product_name}
                           </span>
                         )}
 
                         {post.location_name && (
-                          <span className="rounded-full bg-muted px-2 py-0.5">
+                          <span className="border border-border bg-muted px-2 py-0.5 text-muted-foreground">
                             {post.location_name}
                           </span>
                         )}
                       </div>
 
-                      <h3 className="mt-2 font-display text-lg font-semibold">
+                      <h3 className="mt-3 text-balance font-display text-lg font-semibold leading-6">
                         {displayedTitle}
                       </h3>
 
-                      <p className="mt-1 line-clamp-2 whitespace-pre-line text-sm text-muted-foreground">
+                      <p className="mt-1 line-clamp-2 whitespace-pre-line text-sm leading-6 text-muted-foreground">
                         {displayedBody}
                       </p>
 
@@ -172,7 +172,7 @@ export default function Community() {
                         {timeAgo(post.created_at)}
 
                         <span className="flex items-center gap-1">
-                          <MessageCircle className="h-3 w-3" />
+                          <MessageCircle aria-hidden="true" className="h-3.5 w-3.5" />
                           {post.comment_count ?? 0}
                         </span>
                       </p>
@@ -184,40 +184,61 @@ export default function Community() {
           )}
         </div>
 
-        <aside className="h-fit rounded-3xl border bg-card p-6">
+        <aside className="h-fit border border-border bg-card p-6">
           <h2 className="font-display text-lg font-semibold">
             Start a discussion
           </h2>
 
           {!user ? (
-            <p className="mt-2 text-sm text-muted-foreground">
-              <Link to="/auth/login" className="text-primary underline">
+            <p className="mt-2 text-sm leading-6 text-muted-foreground">
+              <Link
+                to="/auth/login"
+                className="text-primary underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+              >
                 Log in
               </Link>{" "}
               to post.
             </p>
           ) : (
-            <form className="mt-3 space-y-3" onSubmit={handleSubmit}>
-              <input
-                required
-                maxLength={200}
-                value={title}
-                onChange={(event) => setTitle(event.target.value)}
-                placeholder="Title"
-                aria-label="Discussion title"
-                className={inputCls}
-              />
+            <form className="mt-4 space-y-4" onSubmit={handleSubmit}>
+              <div>
+                <label
+                  htmlFor="discussion-title"
+                  className="mb-1.5 block text-sm font-medium"
+                >
+                  Title
+                </label>
 
-              <textarea
-                required
-                maxLength={10000}
-                value={body}
-                onChange={(event) => setBody(event.target.value)}
-                rows={4}
-                placeholder="What did you notice?"
-                aria-label="Discussion details"
-                className={inputCls}
-              />
+                <input
+                  id="discussion-title"
+                  required
+                  maxLength={200}
+                  value={title}
+                  onChange={(event) => setTitle(event.target.value)}
+                  placeholder="e.g. Pepper prices in Ikorodu"
+                  className={inputCls}
+                />
+              </div>
+
+              <div>
+                <label
+                  htmlFor="discussion-body"
+                  className="mb-1.5 block text-sm font-medium"
+                >
+                  Details
+                </label>
+
+                <textarea
+                  id="discussion-body"
+                  required
+                  maxLength={10000}
+                  value={body}
+                  onChange={(event) => setBody(event.target.value)}
+                  rows={4}
+                  placeholder="What did you notice?"
+                  className={inputCls}
+                />
+              </div>
 
               {err && (
                 <div role="alert">

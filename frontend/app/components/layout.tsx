@@ -7,7 +7,7 @@ export function Logo() {
   return (
     <Link
       to="/"
-      className="flex items-center gap-2 font-display text-lg font-bold"
+      className="flex items-center gap-2 rounded-[3px] font-display text-lg font-bold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
     >
       <span className="relative inline-flex h-7 w-10">
         <span className="absolute left-0 h-7 w-7 rounded-full bg-primary" />
@@ -28,7 +28,7 @@ export function SiteLayout({ children }: { children: ReactNode }) {
   };
   
   const nav =
-    "text-sm font-medium hover:text-primary [&.active]:text-primary";
+    "inline-flex min-h-11 items-center rounded-[3px] text-sm font-medium transition-colors duration-150 ease-out hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring [&.active]:text-primary";
 
   const profileLabel =
     user?.name?.trim().split(/\s+/)[0] ||
@@ -41,7 +41,10 @@ export function SiteLayout({ children }: { children: ReactNode }) {
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-5">
           <Logo />
 
-          <nav className="hidden items-center gap-6 md:flex">
+          <nav
+            aria-label="Primary"
+            className="hidden items-center gap-6 md:flex"
+          >
             <NavLink to="/search" className={nav}>
               Search
             </NavLink>
@@ -58,14 +61,14 @@ export function SiteLayout({ children }: { children: ReactNode }) {
               <>
                 <Link
                   to="/profile"
-                  className="rounded-full border px-3 py-1.5 text-sm"
+                  className="inline-flex min-h-10 items-center rounded-[3px] border border-border px-3 text-sm transition-colors duration-150 ease-out hover:border-primary hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
                 >
                   {profileLabel}
                 </Link>
                 <button
                     type="button"
                     onClick={handleLogout}
-                    className="text-sm text-muted-foreground hover:text-foreground"
+                    className="inline-flex min-h-10 items-center px-1 text-sm text-muted-foreground transition-colors duration-150 ease-out hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
                 >
                     Log out
                 </button>
@@ -74,13 +77,13 @@ export function SiteLayout({ children }: { children: ReactNode }) {
               <>
                 <Link
                   to="/auth/login"
-                  className="text-sm font-medium"
+                  className="inline-flex min-h-10 items-center rounded-[3px] px-1 text-sm font-medium transition-colors duration-150 ease-out hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
                 >
                   Log in
                 </Link>
                 <Link
                   to="/auth/register"
-                  className="rounded-full bg-primary px-4 py-1.5 text-sm font-medium text-primary-foreground"
+                  className="inline-flex min-h-10 items-center rounded-[3px] bg-primary px-4 text-sm font-medium text-primary-foreground transition-colors duration-150 ease-out hover:bg-primary-glow hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
                 >
                   Join
                 </Link>
@@ -89,7 +92,10 @@ export function SiteLayout({ children }: { children: ReactNode }) {
           </div>
         </div>
 
-        <nav className="flex justify-center gap-6 border-t py-2 md:hidden">
+        <nav
+          aria-label="Mobile primary"
+          className="flex justify-center gap-6 border-t py-1 md:hidden"
+        >
           <NavLink to="/search" className={nav}>
             Search
           </NavLink>
@@ -122,24 +128,24 @@ export function Page({
   children: ReactNode;
 }) {
   return (
-    <div className="mx-auto max-w-6xl px-5 py-10 animate-fade-in">
+    <div className="mx-auto max-w-6xl animate-fade-in px-5 py-12 md:py-16">
       {kicker && (
-        <p className="text-xs font-semibold uppercase tracking-wider text-primary mb-1">
+        <p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-primary">
           {kicker}
         </p>
       )}
 
-      <h1 className="mt-0 font-display text-3xl font-bold tracking-tight md:text-4xl">
+      <h1 className="mt-0 text-balance font-display text-[clamp(2rem,4vw,3rem)] font-bold leading-[1.1] tracking-[-0.03em]">
         {title}
       </h1>
 
-      <div className="mt-8">{children}</div>
+      <div className="mt-8 md:mt-10">{children}</div>
     </div>
   );
 }
 
 export const inputCls =
-  "w-full rounded-xl border border-input bg-card px-4 py-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-colors";
+  "min-h-11 w-full rounded-[3px] border border-input bg-card px-4 py-2.5 text-base text-foreground outline-none transition-colors duration-150 ease-out placeholder:text-muted-foreground focus:border-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring";
 
 export const btnCls =
-  "inline-flex items-center justify-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground transition-all hover:brightness-110 active:scale-95 disabled:opacity-60 disabled:pointer-events-none btn-pressed";
+  "inline-flex min-h-11 items-center justify-center gap-2 rounded-[3px] border border-primary bg-primary px-5 text-sm font-semibold text-primary-foreground transition-colors duration-150 ease-out hover:border-primary-glow hover:bg-primary-glow hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring disabled:pointer-events-none disabled:opacity-60";

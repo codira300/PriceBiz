@@ -1,12 +1,11 @@
 import { Link } from "react-router";
-import { ArrowRight, MessagesSquare, PlusCircle } from "lucide-react";
+import { ArrowRight, ArrowUpRight, PlusCircle } from "lucide-react";
 
 import { usePageMeta } from "../lib/meta";
 import { ProductPicker } from "../components/product-picker";
 import { useCachedAsync } from "../hooks/use-async";
 import { communityApi } from "../lib/api/services";
 import { timeAgo } from "../lib/format";
-import { PageSkeleton } from "../components/states";
 
 const POPULAR = [
   "Dangote Sugar",
@@ -23,6 +22,24 @@ const SELLERS = [
   "Shop",
   "Mini Farm",
   "Online",
+];
+
+const TRUST = [
+  {
+    title: "Observed, not official",
+    description:
+      "Every range comes from real price observations submitted by people, with outliers counted separately.",
+  },
+  {
+    title: "Location-aware",
+    description:
+      "Country → state → LGA → area → market. We tell you when we widen the area.",
+  },
+  {
+    title: "Seller breakdown",
+    description:
+      "See why a supermarket and a market stall differ for the same item.",
+  },
 ];
 
 export default function Home() {
@@ -48,166 +65,266 @@ export default function Home() {
   });
 
   return (
-    <>
-      <section className="relative overflow-hidden bg-secondary/60">
-        <div className="pointer-events-none absolute -right-40 -top-40 h-[42rem] w-[42rem] rounded-full border border-primary/40" />
-
-        <div className="mx-auto grid max-w-6xl items-end gap-8 px-5 pt-14 md:grid-cols-[1.1fr_1fr] md:pt-20">
-          <div className="pb-40 md:pb-48">
-            <h1 className="font-display text-5xl font-bold leading-[1.02] tracking-tight md:text-7xl">
-              PriceBiz
-              <span className="block font-medium">know the price</span>
-              <span className="block font-medium">before you buy.</span>
-            </h1>
-
-            <p className="mt-6 max-w-md text-lg text-muted-foreground">
-              Search everyday products and see what people are paying in your
-              area — from Ikorodu markets to Wuse supermarkets.
-            </p>
-
-            <div className="mt-6 flex flex-wrap gap-2">
-              {POPULAR.map((product) => (
-                <Link
-                  key={product}
-                  to={`/search?q=${encodeURIComponent(product)}`}
-                  className="rounded-full border bg-card px-3 py-1 text-xs hover:border-primary"
-                >
-                  {product}
-                </Link>
-              ))}
-            </div>
-          </div>
-
-          <div className="relative mx-auto h-[26rem] w-full max-w-md md:h-[34rem]">
-            <div className="absolute bottom-0 left-1/2 h-[24rem] w-[20rem] -translate-x-1/2 overflow-hidden rounded-t-full bg-sun md:h-[32rem] md:w-[26rem]">
-              <img
-                src="/hero-trader.jpg"
-                alt="Market trader holding a basket of tomatoes and peppers"
-                width={896}
-                height={1152}
-                className="h-full w-full object-cover object-top"
-              />
-            </div>
-
-            <div className="absolute -left-24 top-24 hidden text-left text-sm md:block">
-              <p className="font-semibold">Mama Bisi (Ikorodu)</p>
-              <p className="text-muted-foreground">
-                Logs her pepper prices
-                <br />
-                every market day.
+    <div className="bg-background">
+      <section
+        aria-labelledby="hero-title"
+        className="border-b border-border bg-secondary/50"
+      >
+        <div className="mx-auto max-w-6xl px-5">
+          <div className="grid gap-10 py-12 md:grid-cols-[1.1fr_0.9fr] md:items-center md:gap-14 md:py-16">
+            <div className="animate-fade-in">
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
+                Price intelligence for everyday goods
               </p>
-            </div>
-          </div>
-        </div>
-      </section>
 
-      <div className="relative z-10 mx-auto -mt-32 max-w-4xl px-5">
-        <ProductPicker />
-      </div>
-
-      <section className="mx-auto grid max-w-6xl gap-6 px-5 py-20 md:grid-cols-[1fr_2fr]">
-        <h2 className="font-display text-4xl font-bold leading-tight">
-          Prices from <span className="text-primary">every kind</span> of seller
-        </h2>
-
-        <div className="grid gap-4 sm:grid-cols-3">
-          {[
-            [
-              "Observed, not official",
-              "Every range comes from real price observations, with outliers counted separately.",
-            ],
-            [
-              "Location-aware",
-              "Country → State → LGA → Area → Market. We tell you when we widen the area.",
-            ],
-            [
-              "Seller breakdown",
-              "See why a supermarket and a market stall differ for the same item.",
-            ],
-          ].map(([title, description]) => (
-            <div key={title} className="rounded-3xl border bg-card p-6">
-              <h3 className="font-display text-lg font-semibold">{title}</h3>
-              <p className="mt-2 text-sm text-muted-foreground">
-                {description}
-              </p>
-            </div>
-          ))}
-
-          <div className="flex flex-wrap gap-2 sm:col-span-3">
-            {SELLERS.map((seller) => (
-              <span
-                key={seller}
-                className="rounded-full bg-accent px-3 py-1 text-xs font-medium text-accent-foreground"
+              <h1
+                id="hero-title"
+                className="mt-4 max-w-xl text-balance font-display text-[clamp(2.5rem,6vw,4.5rem)] font-bold leading-[1.03] tracking-[-0.035em]"
               >
-                {seller}
-              </span>
-            ))}
-          </div>
-        </div>
-      </section>
+                Know the price before you buy.
+              </h1>
 
-      <hr className="section-divider" />
+              <p className="mt-5 max-w-md text-pretty text-base leading-7 text-muted-foreground sm:text-lg sm:leading-8">
+                Search everyday products and see what people are paying in
+                your area — from Ikorodu markets to Wuse supermarkets.
+              </p>
 
-      <section className="mx-auto grid max-w-6xl gap-6 px-5 pb-20 md:grid-cols-2">
-        <div className="rounded-3xl border bg-card p-6">
-          <div className="flex items-center justify-between">
-            <h3 className="flex items-center gap-2 font-display text-xl font-semibold">
-              <MessagesSquare className="h-5 w-5 text-primary" />
-              Community activity
-            </h3>
-
-            <Link to="/community" className="text-sm text-primary">
-              View all
-            </Link>
-          </div>
-
-          <ul className="mt-4 divide-y">
-            {posts.data?.slice(0, 3).map((post) => (
-              <li key={post._id} className="py-3">
-                <Link
-                  to={`/community/${post._id}`}
-                  className="font-medium hover:text-primary"
-                >
-                  {post.title}
-                </Link>
-
-                <p className="text-xs text-muted-foreground">
-                  {post.location_name} · {timeAgo(post.created_at)}
+              <div className="mt-7">
+                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+                  Popular searches
                 </p>
-              </li>
-            ))}
 
-            {posts.loading && (
-              <li className="py-3">
-                <PageSkeleton label="Loading community activity…" />
-              </li>
-            )}
-          </ul>
-        </div>
+                <ul className="mt-2 flex flex-wrap gap-x-5 gap-y-1">
+                  {POPULAR.map((product) => (
+                    <li key={product}>
+                      <Link
+                        to={`/search?q=${encodeURIComponent(product)}`}
+                        className="inline-flex min-h-11 items-center border-b border-border text-sm font-medium text-foreground transition-colors duration-150 ease-out hover:border-primary hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+                      >
+                        {product}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
 
-        <div className="flex flex-col justify-between rounded-3xl bg-foreground p-8 text-background">
-          <div>
-            <PlusCircle className="h-7 w-7 text-primary-glow" />
+            <figure className="w-full border border-border bg-card">
+              <div className="flex items-center justify-between gap-4 border-b border-border px-4 py-3">
+                <span className="text-xs font-semibold uppercase tracking-[0.14em] text-primary">
+                  Field note
+                </span>
+                <span className="text-xs text-muted-foreground">
+                  Ikorodu, Lagos
+                </span>
+              </div>
 
-            <h3 className="mt-3 font-display text-2xl font-bold">
-              Bought something today?
-            </h3>
+              <div className="aspect-[4/5] overflow-hidden bg-secondary">
+                <img
+                  src="/hero-trader.jpg"
+                  alt="Market trader holding a basket of tomatoes and peppers"
+                  width={896}
+                  height={1152}
+                  className="h-full w-full object-cover object-top"
+                />
+              </div>
 
-            <p className="mt-2 text-sm opacity-80">
-              Share what you paid. Each observation helps your neighbours
-              negotiate fairly.
-            </p>
+              <figcaption className="border-t border-border px-4 py-3 text-sm leading-6 text-muted-foreground">
+                <span className="font-medium text-foreground">
+                  Mama Bisi
+                </span>{" "}
+                logs her pepper prices every market day.
+              </figcaption>
+            </figure>
           </div>
 
-          <Link
-            to="/contribute"
-            className="mt-6 inline-flex w-fit items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground"
-          >
-            Add a price
-            <ArrowRight className="h-4 w-4" />
-          </Link>
+          <div className="border-t border-border py-8 md:py-10">
+            <ProductPicker />
+          </div>
         </div>
       </section>
-    </>
+
+      <section
+        aria-labelledby="how-it-works"
+        className="mx-auto max-w-6xl px-5 py-14 md:py-20"
+      >
+        <div className="grid gap-10 md:grid-cols-[0.85fr_1.15fr] md:gap-14">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
+              How the data works
+            </p>
+
+            <h2
+              id="how-it-works"
+              className="mt-3 max-w-sm text-balance font-display text-[clamp(1.75rem,3vw,2.5rem)] font-bold leading-[1.15] tracking-[-0.025em]"
+            >
+              Prices from every kind of seller
+            </h2>
+
+            <p className="mt-4 max-w-sm text-pretty text-base leading-7 text-muted-foreground">
+              Markets, supermarkets, shops, wholesalers, farms and online
+              sellers all tell a different part of the price story.
+            </p>
+
+            <ul className="mt-6 flex flex-wrap gap-2" aria-label="Seller types">
+              {SELLERS.map((seller) => (
+                <li
+                  key={seller}
+                  className="border border-border bg-card px-2.5 py-1 text-xs font-medium text-muted-foreground"
+                >
+                  {seller}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <ol className="divide-y divide-border border-y border-border">
+            {TRUST.map(({ title, description }, index) => (
+              <li
+                key={title}
+                className="grid grid-cols-[2.5rem_1fr] gap-4 py-5 sm:grid-cols-[3.5rem_1fr] sm:py-6"
+              >
+                <span
+                  aria-hidden="true"
+                  className="font-display text-sm font-semibold tabular-nums text-primary"
+                >
+                  {String(index + 1).padStart(2, "0")}
+                </span>
+
+                <div>
+                  <h3 className="text-base font-semibold leading-6">
+                    {title}
+                  </h3>
+                  <p className="mt-1 text-sm leading-6 text-muted-foreground">
+                    {description}
+                  </p>
+                </div>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </section>
+
+      <section
+        aria-labelledby="community-heading"
+        className="border-t border-border bg-secondary/40"
+      >
+        <div className="mx-auto grid max-w-6xl gap-10 px-5 py-14 md:grid-cols-[1.15fr_0.85fr] md:gap-14 md:py-20">
+          <div>
+            <div className="flex flex-wrap items-end justify-between gap-4">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
+                  Community
+                </p>
+
+                <h2
+                  id="community-heading"
+                  className="mt-3 font-display text-[clamp(1.75rem,3vw,2.5rem)] font-bold leading-[1.15] tracking-[-0.025em]"
+                >
+                  Recent price talk
+                </h2>
+              </div>
+
+              <Link
+                to="/community"
+                className="inline-flex min-h-11 items-center gap-1.5 text-sm font-medium text-primary transition-colors duration-150 ease-out hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+              >
+                View all
+                <ArrowUpRight aria-hidden="true" className="h-4 w-4" />
+              </Link>
+            </div>
+
+            {posts.loading ? (
+              <div
+                className="mt-6 border-t border-border"
+                aria-label="Loading community activity"
+              >
+                {[0, 1, 2].map((item) => (
+                  <div key={item} className="border-b border-border py-4">
+                    <div className="h-4 w-2/3 animate-pulse rounded-[2px] bg-primary/10" />
+                    <div className="mt-2 h-3 w-1/3 animate-pulse rounded-[2px] bg-primary/10" />
+                  </div>
+                ))}
+              </div>
+            ) : posts.error ? (
+              <div className="mt-6 border border-border bg-card p-5">
+                <p className="text-sm font-medium">
+                  Community activity is unavailable right now.
+                </p>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  {posts.error.message}
+                </p>
+                <button
+                  type="button"
+                  onClick={posts.retry}
+                  className="mt-4 inline-flex min-h-11 items-center bg-foreground px-4 text-sm font-medium text-background transition-colors duration-150 ease-out hover:bg-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+                >
+                  Try again
+                </button>
+              </div>
+            ) : !posts.data?.length ? (
+              <div className="mt-6 border-y border-border py-8">
+                <p className="text-base font-medium">No conversations yet.</p>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Start one with a price you saw today.
+                </p>
+              </div>
+            ) : (
+              <ul className="mt-6 border-t border-border">
+                {posts.data.slice(0, 3).map((post) => (
+                  <li key={post._id} className="border-b border-border">
+                    <Link
+                      to={`/community/${post._id}`}
+                      className="group flex items-start justify-between gap-4 py-4 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+                    >
+                      <span className="min-w-0">
+                        <span className="block truncate font-medium transition-colors duration-150 ease-out group-hover:text-primary">
+                          {post.title || "Untitled discussion"}
+                        </span>
+                        <span className="mt-1 block text-sm text-muted-foreground">
+                          {post.location_name || "Location not set"} ·{" "}
+                          {timeAgo(post.created_at)}
+                        </span>
+                      </span>
+
+                      <ArrowUpRight
+                        aria-hidden="true"
+                        className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground transition-colors duration-150 ease-out group-hover:text-primary"
+                      />
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+
+          <aside className="flex flex-col justify-between bg-foreground p-6 text-background md:p-8">
+            <div>
+              <PlusCircle
+                aria-hidden="true"
+                className="h-6 w-6 text-primary-glow"
+              />
+
+              <h2 className="mt-4 text-balance font-display text-2xl font-bold leading-tight text-background">
+                Bought something today?
+              </h2>
+
+              <p className="mt-2 max-w-sm text-pretty text-sm leading-6 text-background/75">
+                Share what you paid. Each observation helps your neighbours
+                negotiate fairly.
+              </p>
+            </div>
+
+            <Link
+              to="/contribute"
+              className="mt-8 inline-flex min-h-11 w-fit items-center gap-2 bg-primary px-5 text-sm font-semibold text-primary-foreground transition-colors duration-150 ease-out hover:bg-primary-glow hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+            >
+              Add a price
+              <ArrowRight aria-hidden="true" className="h-4 w-4" />
+            </Link>
+          </aside>
+        </div>
+      </section>
+    </div>
   );
 }
